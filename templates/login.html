@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Single Page</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Одностраничное приложение на FastAPI</h1>
+        <p>Введите ваше имя и получите приветствие без перезагрузки страницы.</p>
+
+        <input type="text" id="nameInput" placeholder="Ваше имя">
+        <button id="sendBtn">Отправить</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            const name = document.getElementById('nameInput').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!name.trim()) {
+                resultDiv.textContent = 'Пожалуйста, введите имя.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/greet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: name })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка сети');
+                }
+
+                const data = await response.json();
+                resultDiv.textContent = data.message;
+            } catch (error) {
+                resultDiv.textContent = 'Произошла ошибка: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
