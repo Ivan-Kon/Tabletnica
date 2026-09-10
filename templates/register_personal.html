@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация персонала</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 15px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        #message { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Регистрация нового персонала</h1>
+    <form id="personalForm">
+        <label for="name">Имя</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="username">Юзернейм</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="password_retry">Повторите пароль</label>
+        <input type="password" id="password_retry" name="password_retry" required>
+
+        <label for="job_title">Должность</label>
+        <select id="job_title" name="job_title" required>
+            <option value="">Выберите должность</option>
+            <option value="врач">Врач</option>
+            <option value="медсестра">Медсестра / Медбрат</option>
+        </select>
+
+        <button type="submit">Зарегистрировать</button>
+    </form>
+    <div id="message"></div>
+
+    <script>
+        document.getElementById('personalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const passwordRetry = document.getElementById('password_retry').value;
+
+            // Проверка совпадения паролей
+            if (password !== passwordRetry) {
+                document.getElementById('message').textContent = 'Пароли не совпадают!';
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('name').value,
+                username: document.getElementById('username').value,
+                password: password,
+                job_title: document.getElementById('job_title').value
+            };
+
+            try {
+                const response = await fetch('/add_personal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                document.getElementById('message').textContent = result.message || 'Успешно!';
+                if (response.ok) {
+                    document.getElementById('personalForm').reset();
+                }
+            } catch (error) {
+                document.getElementById('message').textContent = 'Ошибка: ' + error;
+            }
+        });
+    </script>
+</body>
+</html>
