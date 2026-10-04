@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import Patient, Doctor
+#from src.models import Patient#, Doctor
 
 
 async def add_patient(session: AsyncSession, name, birth_date, id_doctor, num_room, id_user=None):
@@ -21,13 +21,13 @@ async def add_patient(session: AsyncSession, name, birth_date, id_doctor, num_ro
     return new_patient
 
 
-async def login_doctor(session: AsyncSession, username, password):
-    doctor = await session.scalar(
-        select(Doctor).where(Doctor.username == username, Doctor.password == password)
-    )
-    if doctor:
-        return True
-    return False
+# async def login_doctor(session: AsyncSession, username, password):
+#     doctor = await session.scalar(
+#         select(Doctor).where(Doctor.username == username, Doctor.password == password)
+#     )
+#     if doctor:
+#         return True
+#     return False
 
 
 async def get_patient(session: AsyncSession, id_doctor):

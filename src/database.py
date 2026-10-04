@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 
 from src.config import DATABASE_URL
 
-engine = create_async_engine(url=DATABASE_URL, echo=True)
+engine = create_async_engine(url=DATABASE_URL)
 
 async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -17,7 +18,17 @@ class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
-async def init_db():
+async def init_db(drop_first: bool = False):
+    with open("database.sql", "r", encoding="utf-8") as file:
+        sql_script = file.read()
+
+    statements = [s.strip() for s in sql_script.split(";") if s.strip()]
+
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+        if drop_first:
+            await conn.execute(text("SET FOREIGN_KEY_CHECKS = 0"))
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
+
+        for i, stmt in enumerate(statements, 1):
+            await conn.execute(text(stmt))
