@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from src.schemas import *
@@ -15,5 +16,12 @@ class LoginUserSchema(BaseModel):
 
 
 class UserSchema(LoginUserSchema):
-    name: str
-    job_title: JobTitle
+    role: JobTitle
+    full_name: str
+    active: bool
+
+
+class UserOutSchema(UserSchema):
+    id: int
+    created_at: datetime
+    updated_at: datetime

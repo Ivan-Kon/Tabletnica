@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.hash import hash_password, verify_password, pwd_context
@@ -26,26 +28,31 @@ async def login_user(session: AsyncSession, username, password) -> User | None:
     return user
 
 
-async def register_user(session: AsyncSession,username, password, role, full_name) -> dict | None:
+async def register_user(session: AsyncSession,user) -> User | None:
     """Регистрация пользователя в БД."""
 
-    # Проверка на дубликат — иначе получите IntegrityError при unique constraint
     existing = await session.scalar(
-        select(User).where(User.username == username)
+        select(User).where(User.username == user.username)
     )
     if existing is not None:
-        raise ValueError("Пользователь с таким username уже существует")
+        return False
 
-    password_hash = await hash_password(password)
+    password_hash = await hash_password(user.password)
+
+    updated_at = datetime.now()
+    created_at = updated_at
 
     new_user = User(
-        full_name=full_name,
-        username=username,
+        full_name=user.full_name,
+        username=user.username,
         password_hash=password_hash,
-        role=role,
+        role=user.role,
+        active=user.active,
+        updated_at=updated_at,
+        created_at=created_at,
     )
     session.add(new_user)
     await session.commit()
-    await session.refresh(new_user)   # чтобы получить id после flush
+    await session.refresh(new_user)
 
-    return {"message": "Врач успешно зарегистрирован", "id": new_user.id}
+    return new_user

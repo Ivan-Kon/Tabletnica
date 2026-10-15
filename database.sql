@@ -15,7 +15,7 @@ USE `tabletnica`;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Patients`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Patients` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`patients` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `full_name` VARCHAR(100) NULL,
   `room_number` VARCHAR(20) NULL,
@@ -30,7 +30,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Users` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`users` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50) NULL,
   `password_hash` VARCHAR(255) NULL,
@@ -47,7 +47,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Prescriptions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Prescriptions` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`prescriptions` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `patient_id` BIGINT NOT NULL,
   `entered_by` BIGINT NOT NULL,
@@ -76,7 +76,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Pillboxes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Pillboxes` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`pillboxes` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `serial_num` VARCHAR(50) NULL,
   `model_version` VARCHAR(50) NULL,
@@ -93,7 +93,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Cells`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Cells` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`cells` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `pillbox_id` BIGINT NOT NULL,
   `cell_number` INT NULL,
@@ -113,7 +113,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Pillbox_assignments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Pillbox_assignments` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`pillbox_assignments` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `pillbox_id` BIGINT NOT NULL,
   `patient_id` BIGINT NOT NULL,
@@ -146,7 +146,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Prescriptions_items`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Prescriptions_items` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`prescriptions_items` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `prescriptions_id` BIGINT NOT NULL,
   `drug_name` VARCHAR(255) NOT NULL,
@@ -173,7 +173,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Cell_configurations`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Cell_configurations` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`cell_configurations` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `Cell_id` BIGINT NOT NULL,
   `assignment_id` BIGINT NOT NULL,
@@ -214,7 +214,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Schedules`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Schedules` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`schedules` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `cell_config_id` BIGINT NOT NULL,
   `schedule_type` ENUM('specific_times', 'interval') NULL,
@@ -236,7 +236,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Events`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Events` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`events` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `pillbox_id` BIGINT NOT NULL,
   `cell_id` BIGINT NULL DEFAULT NULL,
@@ -278,7 +278,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Device_configs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Device_configs` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`device_configs` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `pillbox_id` BIGINT NOT NULL,
   `config_version` INT NULL,
@@ -299,7 +299,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Weight_measurements`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Weight_measurements` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`weight_measurements` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `event_id` BIGINT NOT NULL,
   `cell_config_id` BIGINT NOT NULL,
@@ -328,7 +328,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Schedule_times`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Schedule_times` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`schedule_times` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `schedules_id` BIGINT NOT NULL,
   `time_of_day` TIME NULL,
@@ -345,7 +345,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `tabletnica`.`Alerts`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tabletnica`.`Alerts` (
+CREATE TABLE IF NOT EXISTS `tabletnica`.`alerts` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `patient_id` BIGINT NULL DEFAULT NULL,
   `pillbox_id` BIGINT NULL DEFAULT NULL,

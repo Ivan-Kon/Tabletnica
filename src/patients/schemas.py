@@ -14,14 +14,14 @@ class StatusPatientSchema(BaseModel):
     status: PatientStatus
 
 
-
 class PatientSchema(StatusPatientSchema):
     full_name: str
     room_number: str
     bed_number: str
-    created_at: datetime
-    updated_at: datetime
 
 
 class PatientOutSchema(PatientSchema):
     id: int
+    created_at: datetime
+    updated_at: datetime
+

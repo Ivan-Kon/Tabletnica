@@ -26,10 +26,12 @@ async def login(data: LoginUserSchema, session: SessionDep):
 
 
 @router.post("/register")
-async def login(data: UserSchema, session: SessionDep):
+async def login(user: UserSchema, session: SessionDep):
     """Регистрация пользователя"""
-    await register_user(session, data.username, data.password, data.job_title, data.name)
-    return {"message": "Врач успешно зарегистрирован"}
+    user = await register_user(session, user)
+    if user:
+        return user
+    raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Username or password already exists")
 
 
 

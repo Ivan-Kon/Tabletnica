@@ -15,17 +15,18 @@ class ScheduleStatus(str, Enum):
     completed = 'completed'
 
 
-class ScheduleTimeSchema(BaseModel):
-    time: datetime
+class ScheduleTypeSchema(BaseModel):
+    status: ScheduleStatus
 
 
-class ScheduleShema(ScheduleTimeSchema):
+class ScheduleShema(ScheduleTypeSchema):
     schedule_type: ScheduleType
     interval_minutes: int
+    cell_config_id: int
     anchor_at: datetime
     start_date: date
     end_date: date
-    staus: ScheduleStatus
+    status: ScheduleStatus
 
 
 class ScheduleOutShema(ScheduleShema):

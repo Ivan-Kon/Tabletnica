@@ -18,17 +18,21 @@ class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
-async def init_db(drop_first: bool = False):
-    with open("database.sql", "r", encoding="utf-8") as file:
-        sql_script = file.read()
-
-    statements = [s.strip() for s in sql_script.split(";") if s.strip()]
-
+async def init_db(drop_first: bool = True):
     async with engine.begin() as conn:
         if drop_first:
+            # Отключаем проверку внешних ключей (актуально для MySQL/MariaDB)
             await conn.execute(text("SET FOREIGN_KEY_CHECKS = 0"))
+
+            # Удаляем все таблицы через Base
             await conn.run_sync(Base.metadata.drop_all)
+
+            # Включаем проверку внешних ключей обратно
             await conn.execute(text("SET FOREIGN_KEY_CHECKS = 1"))
 
-        for i, stmt in enumerate(statements, 1):
-            await conn.execute(text(stmt))
+        # Создаем все таблицы, описанные в моделях Base
+        await conn.run_sync(Base.metadata.create_all)
+        with open("database.sql", "r", encoding="utf-8") as f:
+            sql = f.read()
+        conn.execute(text(sql))
+        #await conn.run_sync(Base.metadata.create_all)
