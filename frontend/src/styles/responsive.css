@@ -762,3 +762,13 @@
     background: linear-gradient(180deg, #edf6fc 70%, #edf6fc00);
   }
 }
+
+@media (max-width: 640px) {
+  .button.small-button {
+    min-height: 44px;
+  }
+  .icon-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
