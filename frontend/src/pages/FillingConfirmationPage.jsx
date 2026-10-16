@@ -114,16 +114,19 @@ export default function FillingConfirmationPage() {
             disabled={
               !checked ||
               !box.online ||
-              !box.cells.some((c) => c.status === "CONFIGURED")
+              !box.assignment ||
+              !box.cells.some(
+                (c) => c.status === "CONFIGURED" || c.pending_change,
+              )
             }
             onClick={confirm}
           >
             Таблетница заполнена
           </Button>
         </div>
-        {!box.cells.some((c) => c.status === "CONFIGURED") && (
-          <p className="muted">Нет новых настроек для подтверждения.</p>
-        )}
+        {!box.cells.some(
+          (c) => c.status === "CONFIGURED" || c.pending_change,
+        ) && <p className="muted">Нет новых настроек для подтверждения.</p>}
       </Card>
     </>
   );

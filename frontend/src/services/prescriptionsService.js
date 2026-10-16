@@ -18,7 +18,15 @@ export function validateItem(item) {
     !Number.isFinite(Number(item.quantity))
   )
     throw new Error("Укажите препарат, дозировку и положительное количество.");
-  if (!item.start_date || (item.end_date && item.end_date < item.start_date))
+  const validDate = (value) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(value || "") &&
+    Number.isFinite(new Date(`${value}T00:00:00Z`).getTime()) &&
+    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+  if (
+    !validDate(item.start_date) ||
+    (item.end_date &&
+      (!validDate(item.end_date) || item.end_date < item.start_date))
+  )
     throw new Error("Дата окончания должна быть не раньше даты начала.");
   if (
     !item.schedule ||
@@ -64,6 +72,11 @@ export const prescriptionsService = {
           items,
         }),
       });
+    if (
+      store.patients.find((p) => p.id === Number(patientId))?.status !==
+      "active"
+    )
+      throw new Error("Назначение доступно только активному пациенту.");
     const prescription = {
       id: nextId(store.prescriptions),
       patient_id: Number(patientId),

@@ -50,6 +50,7 @@ function CellForm({ data, cell, user }) {
   const [comment, setComment] = useState(existing.comment || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmClear, setConfirmClear] = useState(false);
   const item = items.find((i) => i.id === Number(selected));
   async function save(e) {
     e.preventDefault();
@@ -64,9 +65,30 @@ function CellForm({ data, cell, user }) {
         comment,
         user.id,
       );
-      navigate(`/pillboxes/${box.id}`);
+      navigate(`/pillboxes/${box.id}`, {
+        state: {
+          notice: "Ячейка сохранена. Проверьте и подтвердите заполнение.",
+        },
+      });
     } catch (e) {
       setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function clear() {
+    setBusy(true);
+    setError(null);
+    try {
+      await pillboxesService.clearCell(box.id, Number(cell), user.id);
+      navigate(`/pillboxes/${box.id}`, {
+        state: {
+          notice:
+            "Ячейка отмечена пустой. Подтвердите изменение при проверке заполнения.",
+        },
+      });
+    } catch (error) {
+      setError(error);
     } finally {
       setBusy(false);
     }
@@ -78,6 +100,37 @@ function CellForm({ data, cell, user }) {
         title={`Настройка ячейки №${cell}`}
         description={`${box.device_id} · ${box.patient.full_name}`}
       />
+      {!box.online && (
+        <ErrorMessage error="Нет связи с устройством. Изменения недоступны до восстановления соединения." />
+      )}
+      {existing.status !== "EMPTY" && (
+        <Card>
+          <h2>Освободить ячейку</h2>
+          <p className="muted">
+            Если препарат убран из ячейки, отметьте её пустой. Назначение и
+            история пациента сохранятся.
+          </p>
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={confirmClear}
+              onChange={(e) => setConfirmClear(e.target.checked)}
+              disabled={busy}
+            />
+            Препарат физически убран из ячейки
+          </label>
+          <Button
+            type="button"
+            className="secondary"
+            disabled={!confirmClear || !box.online}
+            loading={busy}
+            onClick={clear}
+          >
+            Отметить ячейку пустой
+          </Button>
+        </Card>
+      )}
+      <ErrorMessage error={error} />
       {!items.length ? (
         <Card>
           <Empty title="Нет действующих назначений">
@@ -137,7 +190,7 @@ function CellForm({ data, cell, user }) {
                   required
                   max={localDateTime()}
                   value={loaded}
-                  onChange={(e) => setLoaded(e.target.value)}
+                  onInput={(e) => setLoaded(e.target.value)}
                 />
               </label>
               <label>
@@ -175,7 +228,6 @@ function CellForm({ data, cell, user }) {
               </p>
             </Card>
           </div>
-          <ErrorMessage error={error} />
           <div className="form-actions">
             <Link className="button secondary" to={`/pillboxes/${box.id}`}>
               Отмена

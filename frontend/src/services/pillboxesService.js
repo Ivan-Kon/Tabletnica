@@ -59,8 +59,12 @@ export function configureCell(
       "Для настройки нужна переданная пациенту таблетница в сети.",
     );
   if (
+    db.patients.find((p) => p.id === assignment.patient_id)?.status !== "active"
+  )
+    throw new Error("Настройка доступна только активному пациенту.");
+  if (
     !item ||
-    item.prescription.patient_id !== assignment.patient_id ||
+    item.prescription?.patient_id !== assignment.patient_id ||
     ["paused", "completed"].includes(item.status) ||
     (item.end_date && item.end_date < today)
   )
@@ -88,6 +92,9 @@ export function configureCell(
     loaded_at: loadedAt,
     comment,
     baseline_weight: null,
+    filled_by: null,
+    filled_at: null,
+    pending_change: true,
   };
   if (configuration) Object.assign(configuration, fields);
   else {
@@ -98,6 +105,35 @@ export function configureCell(
   refreshItemStatus(db, item.id);
   return { ...configuration };
 }
+export function clearCell(db, boxId, cellNumber, userId) {
+  const box = db.pillboxes.find((b) => b.id === Number(boxId));
+  const assignment = db.assignments.find(
+    (a) => a.pillbox_id === box?.id && a.status === "active",
+  );
+  if (!box?.online || !assignment)
+    throw new Error(
+      "Для освобождения ячейки нужна переданная таблетница в сети.",
+    );
+  const cell = db.configurations.find(
+    (c) => c.pillbox_id === box.id && c.cell_number === Number(cellNumber),
+  );
+  if (!cell || cell.status === "EMPTY") throw new Error("Ячейка уже пуста.");
+  const previousItemId = cell.prescription_item_id;
+  Object.assign(cell, {
+    prescription_item_id: null,
+    status: "EMPTY",
+    baseline_weight: null,
+    loaded_at: null,
+    filled_at: null,
+    filled_by: null,
+    comment: "",
+    configured_at: new Date().toISOString(),
+    configured_by: userId,
+    pending_change: true,
+  });
+  refreshItemStatus(db, previousItemId);
+  return { ...cell };
+}
 export function confirmFilling(db, boxId, userId) {
   const box = db.pillboxes.find((b) => b.id === Number(boxId));
   const assignment = db.assignments.find(
@@ -107,7 +143,7 @@ export function confirmFilling(db, boxId, userId) {
   if (
     !box?.online ||
     !assignment ||
-    !cells.some((c) => c.status === "CONFIGURED")
+    !cells.some((c) => c.status === "CONFIGURED" || c.pending_change)
   )
     throw new Error("Нет настроенных изменений для подтверждения.");
   const timestamp = new Date().toISOString();
@@ -117,6 +153,7 @@ export function confirmFilling(db, boxId, userId) {
     throw new Error("Пациент больше не активен. Заполнение не подтверждено.");
   // Validate the entire configuration before changing any cell.
   for (const cell of cells) {
+    if (cell.status === "EMPTY") continue;
     const item = db.prescriptionItems.find(
       (i) => i.id === cell.prescription_item_id,
     );
@@ -135,6 +172,7 @@ export function confirmFilling(db, boxId, userId) {
     }
   }
   cells.forEach((c) => {
+    c.pending_change = false;
     if (c.status !== "CONFIGURED") return;
     // Simulated sensor measurement, never derived from tablet dosage or expected weight.
     c.baseline_weight = Number((12 + c.cell_number * 0.37).toFixed(2));
@@ -144,7 +182,7 @@ export function confirmFilling(db, boxId, userId) {
     db.prescriptionItems.find((i) => i.id === c.prescription_item_id).status =
       "active";
   });
-  box.status = "ACTIVE";
+  box.status = cells.some((c) => c.status === "ACTIVE") ? "ACTIVE" : "ASSIGNED";
   const config = {
     id: nextId(db.deviceConfigs),
     pillbox_id: box.id,
@@ -185,6 +223,14 @@ export const pillboxesService = {
   },
   async getAvailablePillboxes() {
     return (await this.getAll()).filter((b) => b.status === "AVAILABLE");
+  },
+  async clearCell(boxId, cellNumber, userId) {
+    if (!useMocks)
+      return futureApi(
+        `/pillboxes/${Number(boxId)}/cells/${Number(cellNumber)}`,
+        { method: "DELETE" },
+      );
+    return clearCell(store, boxId, cellNumber, userId);
   },
   async getPatientPillbox(patientId) {
     return (
