@@ -1,7 +1,9 @@
 import { Plus, X } from "lucide-react";
 import { Button } from "../common/UI.jsx";
-export default function ScheduleFields({ value, onChange, index }) {
+import { upcomingOccurrences, formatDate } from "../../services/schedule.js";
+export default function ScheduleFields({ value, onChange, index, item }) {
   const update = (patch) => onChange({ ...value, ...patch });
+  const upcoming = upcomingOccurrences(item, value);
   return (
     <div className="schedule-fields">
       <label>
@@ -97,6 +99,21 @@ export default function ScheduleFields({ value, onChange, index }) {
           </div>
         </>
       )}
+      <div className="notice" aria-live="polite">
+        <strong>Ближайшие выдачи · МСК</strong>
+        {upcoming.length ? (
+          <ul>
+            {upcoming.map((date) => (
+              <li key={date.toISOString()}>{formatDate(date)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>
+            Укажите корректное расписание и даты курса. Если курс завершён,
+            будущих выдач нет.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

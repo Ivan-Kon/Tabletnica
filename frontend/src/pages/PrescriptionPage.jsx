@@ -173,6 +173,7 @@ export default function PrescriptionPage() {
                 </label>
               </div>
               <ScheduleFields
+                item={item}
                 value={item.schedule}
                 onChange={(schedule) => update(index, { schedule })}
                 index={index}

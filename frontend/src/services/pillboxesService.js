@@ -2,6 +2,18 @@ import { store, nextId } from "../mocks/store.js";
 import { getItems } from "./prescriptionsService.js";
 import { useMocks } from "./api.js";
 import { futureApi } from "./futureApi.js";
+function refreshItemStatus(db, itemId) {
+  const item = db.prescriptionItems.find((i) => i.id === itemId);
+  if (!item || ["paused", "completed"].includes(item.status)) return;
+  const cells = db.configurations.filter(
+    (c) => c.prescription_item_id === itemId,
+  );
+  item.status = cells.some((c) => c.status === "ACTIVE")
+    ? "active"
+    : cells.some((c) => c.status === "CONFIGURED")
+      ? "configured"
+      : "pending_setup";
+}
 export function assignPillbox(db, pillboxId, patientId, userId) {
   const box = db.pillboxes.find((p) => p.id === Number(pillboxId));
   const patient = db.patients.find((p) => p.id === Number(patientId));
@@ -64,6 +76,7 @@ export function configureCell(
   let configuration = db.configurations.find(
     (c) => c.pillbox_id === box.id && c.cell_number === Number(cellNumber),
   );
+  const previousItemId = configuration?.prescription_item_id;
   const fields = {
     pillbox_id: box.id,
     cell_number: Number(cellNumber),
@@ -81,7 +94,8 @@ export function configureCell(
     configuration = { id: nextId(db.configurations), ...fields };
     db.configurations.push(configuration);
   }
-  db.prescriptionItems.find((i) => i.id === item.id).status = "configured";
+  refreshItemStatus(db, previousItemId);
+  refreshItemStatus(db, item.id);
   return { ...configuration };
 }
 export function confirmFilling(db, boxId, userId) {
@@ -97,6 +111,29 @@ export function confirmFilling(db, boxId, userId) {
   )
     throw new Error("Нет настроенных изменений для подтверждения.");
   const timestamp = new Date().toISOString();
+  const today = new Date(Date.now() + 10800000).toISOString().slice(0, 10);
+  const patient = db.patients.find((p) => p.id === assignment.patient_id);
+  if (patient?.status !== "active")
+    throw new Error("Пациент больше не активен. Заполнение не подтверждено.");
+  // Validate the entire configuration before changing any cell.
+  for (const cell of cells) {
+    const item = db.prescriptionItems.find(
+      (i) => i.id === cell.prescription_item_id,
+    );
+    const prescription = db.prescriptions.find(
+      (p) => p.id === item?.prescription_id,
+    );
+    if (
+      !item ||
+      prescription?.patient_id !== assignment.patient_id ||
+      ["paused", "completed"].includes(item.status) ||
+      (item.end_date && item.end_date < today)
+    ) {
+      throw new Error(
+        `Ячейка №${cell.cell_number}: назначение недействительно или курс завершён. Проверьте настройки.`,
+      );
+    }
+  }
   cells.forEach((c) => {
     if (c.status !== "CONFIGURED") return;
     // Simulated sensor measurement, never derived from tablet dosage or expected weight.
@@ -115,7 +152,14 @@ export function confirmFilling(db, boxId, userId) {
     status: "PREPARED",
     prepared_at: timestamp,
     prepared_by: userId,
-    cells: structuredClone(cells),
+    cells: Array.from({ length: 9 }, (_, index) =>
+      structuredClone(
+        cells.find((cell) => cell.cell_number === index + 1) || {
+          cell_number: index + 1,
+          status: "EMPTY",
+        },
+      ),
+    ),
   };
   db.deviceConfigs.push(config);
   db.events.push({

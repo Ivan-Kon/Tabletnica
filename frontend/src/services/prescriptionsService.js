@@ -14,14 +14,21 @@ export function validateItem(item) {
   if (
     !item.drug_name?.trim() ||
     !item.dosage?.trim() ||
-    !(Number(item.quantity) > 0)
+    !(Number(item.quantity) > 0) ||
+    !Number.isFinite(Number(item.quantity))
   )
     throw new Error("Укажите препарат, дозировку и положительное количество.");
   if (!item.start_date || (item.end_date && item.end_date < item.start_date))
     throw new Error("Дата окончания должна быть не раньше даты начала.");
+  if (
+    !item.schedule ||
+    !["SPECIFIC_TIME", "INTERVAL"].includes(item.schedule.schedule_type)
+  )
+    throw new Error("Выберите тип расписания.");
   if (item.schedule.schedule_type === "SPECIFIC_TIME") {
     const times = item.schedule.specific_times;
     if (
+      !Array.isArray(times) ||
       !times.length ||
       times.some((t) => !/^([01]\d|2[0-3]):[0-5]\d$/.test(t)) ||
       new Set(times).size !== times.length
@@ -29,6 +36,7 @@ export function validateItem(item) {
       throw new Error("Укажите различные корректные времена.");
   } else if (
     !(item.schedule.interval_minutes > 0) ||
+    !Number.isFinite(item.schedule.interval_minutes) ||
     !Number.isFinite(new Date(item.schedule.anchor_at).getTime())
   )
     throw new Error("Укажите интервал и точку отсчёта.");

@@ -27,6 +27,8 @@ test("assignment → configuration → filling retains audit and creates prepare
   const result = confirmFilling(db, 1, 1);
   assert.equal(result.status, "PREPARED");
   assert.equal(result.version, 1);
+  assert.equal(result.cells.length, 9);
+  assert.equal(result.cells[8].status, "EMPTY");
   assert.equal(
     db.configurations.find((c) => c.pillbox_id === 1).status,
     "ACTIVE",
