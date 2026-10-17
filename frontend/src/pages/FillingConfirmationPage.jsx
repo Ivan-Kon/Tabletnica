@@ -1,0 +1,130 @@
+import { useState } from "react";
+import { Link, useParams, useOutletContext } from "react-router-dom";
+import { CheckCircle2 } from "lucide-react";
+import {
+  PageTitle,
+  Card,
+  Button,
+  ErrorMessage,
+  PatientSummary,
+  useLoad,
+  LoadState,
+} from "../components/common/UI.jsx";
+import CellGrid from "../components/pillboxes/CellGrid.jsx";
+import { pillboxesService } from "../services/pillboxesService.js";
+import { formatDate } from "../services/schedule.js";
+export default function FillingConfirmationPage() {
+  const { id } = useParams();
+  const { user } = useOutletContext();
+  const { data: box, error: loadError } = useLoad(
+    () => pillboxesService.getPillbox(id),
+    [id],
+  );
+  const [checked, setChecked] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  async function confirm() {
+    setBusy(true);
+    setError(null);
+    try {
+      setResult(await pillboxesService.confirmFilling(id, user.id));
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  if (!box) return <LoadState data={box} error={loadError} />;
+  if (result)
+    return (
+      <Card className="success-panel">
+        <div className="success-icon">
+          <CheckCircle2 size={48} />
+        </div>
+        <span className="eyebrow">ЗАПОЛНЕНИЕ ПОДТВЕРЖДЕНО</span>
+        <h1>Конфигурация подготовлена</h1>
+        <p className="muted">
+          Настройки сохранены в демонстрационном состоянии.
+        </p>
+        <dl className="definition-list">
+          <dt>Таблетница</dt>
+          <dd>{box.device_id}</dd>
+          <dt>Версия</dt>
+          <dd>{result.version}</dd>
+          <dt>Подготовлена</dt>
+          <dd>{formatDate(result.prepared_at)}</dd>
+          <dt>Ответственная</dt>
+          <dd>{user.full_name}</dd>
+        </dl>
+        <div className="notice">
+          Это деморежим. Отправка на ESP32 и подтверждение устройства
+          отсутствуют. Исходный вес ячеек смоделирован.
+        </div>
+        <div className="form-actions">
+          <Link
+            className="button secondary"
+            to={`/patients/${box.patient.id}/history`}
+          >
+            История событий
+          </Link>
+          <Link className="button" to={`/pillboxes/${id}`}>
+            К таблетнице
+          </Link>
+        </div>
+      </Card>
+    );
+  return (
+    <>
+      <PageTitle
+        back={`/pillboxes/${id}`}
+        title="Проверка заполнения"
+        description="Сверьте содержимое ячеек с бумажным листом назначений."
+      />
+      {box.patient && (
+        <Card className="patient-banner">
+          <PatientSummary patient={box.patient} />
+        </Card>
+      )}
+      <Card>
+        <div className="section-heading">
+          <h2>{box.device_id}</h2>
+          <span className="muted">Все 9 ячеек</span>
+        </div>
+        <CellGrid box={box} readOnly />
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => setChecked(e.target.checked)}
+          />
+          Я проверила препараты, дозировки и количество в заполненных ячейках
+        </label>
+        <div className="notice">
+          Деморежим: после подтверждения будет смоделирован исходный вес
+          заполненных ячеек. Конфигурация получит статус «Подготовлена».
+        </div>
+        <ErrorMessage error={error} />
+        <div className="form-actions">
+          <Link className="button secondary" to={`/pillboxes/${id}`}>
+            Вернуться к ячейкам
+          </Link>
+          <Button
+            loading={busy}
+            disabled={
+              !checked ||
+              !box.online ||
+              !box.cells.some((c) => c.status === "CONFIGURED")
+            }
+            onClick={confirm}
+          >
+            Таблетница заполнена
+          </Button>
+        </div>
+        {!box.cells.some((c) => c.status === "CONFIGURED") && (
+          <p className="muted">Нет новых настроек для подтверждения.</p>
+        )}
+      </Card>
+    </>
+  );
+}
