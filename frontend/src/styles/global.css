@@ -1346,6 +1346,12 @@ fieldset {
   flex-shrink: 0;
 }
 
+.registration-fields {
+  min-width: 0;
+}
+.registration-connection {
+  margin-top: 20px;
+}
 .save-notice {
   display: flex;
   align-items: center;

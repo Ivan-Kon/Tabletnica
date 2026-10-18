@@ -2,6 +2,7 @@ import { store, nextId } from "../mocks/store.js";
 import { getItems } from "./prescriptionsService.js";
 import { useMocks } from "./api.js";
 import { futureApi } from "./futureApi.js";
+import { pillboxFields } from "./registration.js";
 function refreshItemStatus(db, itemId) {
   const item = db.prescriptionItems.find((i) => i.id === itemId);
   if (!item || ["paused", "completed"].includes(item.status)) return;
@@ -210,6 +211,41 @@ export function confirmFilling(db, boxId, userId) {
   return structuredClone(config);
 }
 export const pillboxesService = {
+  async register(input) {
+    const fields = pillboxFields(input);
+    if (!useMocks)
+      return futureApi("/pillboxes", {
+        method: "POST",
+        body: JSON.stringify({ ...fields, token: input.token }),
+      });
+    if (
+      store.pillboxes.some(
+        (box) =>
+          box.serial_number.toLowerCase() ===
+          fields.serial_number.toLowerCase(),
+      )
+    )
+      throw new Error(
+        "Таблетница с таким серийным номером уже зарегистрирована.",
+      );
+    if (
+      store.pillboxes.some(
+        (box) => box.device_id.toLowerCase() === fields.device_id.toLowerCase(),
+      )
+    )
+      throw new Error("Название таблетницы уже используется.");
+    const timestamp = new Date().toISOString();
+    // Demo validates the token but never stores or returns it.
+    const box = {
+      ...fields,
+      id: nextId(store.pillboxes),
+      last_seen_at: fields.online ? timestamp : null,
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+    store.pillboxes.push(box);
+    return structuredClone(box);
+  },
   async getAll() {
     if (!useMocks) return futureApi("/pillboxes");
     return structuredClone(
