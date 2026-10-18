@@ -64,7 +64,7 @@ export default function PatientsPage() {
             <span />
           </div>
           {patients.map((p) => {
-            const box = data.boxes.find(
+            const box = data.boxes?.find(
               (b) => b.assignment?.patient_id === p.id,
             );
             return (
