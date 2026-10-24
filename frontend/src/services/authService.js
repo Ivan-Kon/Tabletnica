@@ -9,8 +9,7 @@ export const authService = {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
-      return {ok: true}
-      //return unavailable("Безопасная cookie-сессия входа");
+      return unavailable("Безопасная cookie-сессия входа");
     }
     if (username !== "nurse" || password !== "demo123")
       throw new Error("Неверный логин или пароль. Демо: nurse / demo123.");

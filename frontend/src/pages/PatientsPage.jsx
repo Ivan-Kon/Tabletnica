@@ -32,6 +32,11 @@ export default function PatientsPage() {
       <PageTitle
         eyebrow="ОТДЕЛЕНИЕ"
         title="Пациенты"
+        action={
+          <Link className="button" to="/patients/new">
+            Добавить пациента
+          </Link>
+        }
         description="Назначения, таблетницы и события каждого пациента."
       />
       <Card>

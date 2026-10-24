@@ -56,7 +56,12 @@ export default function PrescriptionPage() {
     setBusy(true);
     try {
       await prescriptionsService.addPrescription(id, doctor, items, user.id);
-      navigate(`/patients/${id}`);
+      navigate(`/patients/${id}`, {
+        state: {
+          notice:
+            "Назначение сохранено. Теперь можно настроить ячейки таблетницы.",
+        },
+      });
     } catch (e) {
       setError(e);
     } finally {
@@ -152,7 +157,7 @@ export default function PrescriptionPage() {
                     required
                     type="date"
                     value={item.start_date}
-                    onChange={(e) =>
+                    onInput={(e) =>
                       update(index, { start_date: e.target.value })
                     }
                   />
@@ -163,9 +168,7 @@ export default function PrescriptionPage() {
                     type="date"
                     min={item.start_date}
                     value={item.end_date}
-                    onChange={(e) =>
-                      update(index, { end_date: e.target.value })
-                    }
+                    onInput={(e) => update(index, { end_date: e.target.value })}
                   />
                   <span className="field-hint">
                     Оставьте пустой, если не указана

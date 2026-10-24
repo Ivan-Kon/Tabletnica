@@ -12,7 +12,7 @@ class Prescription(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey('patients.id'))
     entered_by: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    source_type: Mapped[str] = mapped_column(Enum('papper', 'import', 'manual'))
+    source_type: Mapped[str] = mapped_column(Enum('paper', 'import', 'manual'))
     source_document_number: Mapped[int] = mapped_column(Integer)
     prescribed_by: Mapped[str] = mapped_column(String(100))
     status: Mapped[str] = mapped_column(Enum('new', 'pending_setup', 'configured', 'active', 'paused', 'completed'))
