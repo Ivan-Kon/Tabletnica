@@ -11,6 +11,7 @@ class Event(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pillbox_id: Mapped[int] = mapped_column(ForeignKey('pillboxes.id'))
+    patient_id: Mapped[int] = mapped_column(ForeignKey('patients.id'))
     cell_config_id: Mapped[int] = mapped_column(ForeignKey('cells_configs.id'), nullable=True)
     cell_id: Mapped[int] = mapped_column(ForeignKey('cells.id'))
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
@@ -18,5 +19,3 @@ class Event(Base):
     last_seen_at: Mapped[datetime] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime)
     updated_at: Mapped[datetime] = mapped_column(DateTime)
-
-print("Event model loaded, table:", Event.__table__)
