@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 
 from backend.src.schedules.crud import get_schedules, get_schedule, add_schedule, update_schedule #add_schedule_time
 from backend.src.schedules.schemas import ScheduleShema, ScheduleOutShema
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 
 router = APIRouter(
