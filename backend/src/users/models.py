@@ -15,5 +15,6 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(100))
     role: Mapped[str] = mapped_column(Enum('admin', 'elder_nurse', 'nurse'))
     active: Mapped[bool] = mapped_column(BOOLEAN)
+    session_id: Mapped[str] = mapped_column(String(50))
     created_at: Mapped[datetime] = mapped_column(DateTime)
     updated_at: Mapped[datetime] = mapped_column(DateTime)
