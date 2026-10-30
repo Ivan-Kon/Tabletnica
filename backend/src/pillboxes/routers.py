@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 from backend.src.pillboxes.crud import get_pillboxes
 
 router = APIRouter(

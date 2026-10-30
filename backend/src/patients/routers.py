@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from backend.src.patients.schemas import PatientSchema, PatientOutSchema, StatusPatientSchema
 from backend.src.patients.crud import get_patients, get_patient, add_patient, update_status_patient, delete_patient
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 router = APIRouter(
     prefix="/patients",

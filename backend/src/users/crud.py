@@ -56,3 +56,26 @@ async def register_user(session: AsyncSession,user) -> User | None:
     await session.refresh(new_user)
 
     return new_user
+
+
+async def get_user_by_session_id(
+    session: AsyncSession,
+    session_id: str
+    ) -> User | None:
+
+    user = await session.execute(select(User).where(User.session_id == session_id))
+    return user.scalar().first()
+
+async def add_session_id_to_user(
+    session: AsyncSession,
+    user_id: str,
+    session_id: str
+):
+    user = await session.get(User, user_id)
+    if user:
+        user.session_id = session_id
+        user.updated_at = datetime.now()
+        await session.commit()
+        await session.refresh(user)
+        return user
+    return None

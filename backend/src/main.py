@@ -36,7 +36,7 @@ app.include_router(alerts_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5174"],  # 👈 Точный origin, откуда открыт фронтенд
+    allow_origins=["http://127.0.0.1:5173"],  # 👈 Точный origin, откуда открыт фронтенд
     allow_credentials=True,                   # 👈 Обязательно True для кук
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,4 +49,4 @@ async def initialize_database():
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host='0.0.0.0', port=8000,reload=True)
+    uvicorn.run("backend.src.main:app", host='0.0.0.0', port=8000,reload=True)

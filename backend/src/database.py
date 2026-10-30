@@ -18,6 +18,11 @@ async def get_session():
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
+from backend.src.cell_configs.models import CellConfig
+from backend.src.pillbox_assignments.models import PillboxAssignment
+from backend.src.prescriptions_items.models import PrescriptionItem
+from backend.src.cells.models import Cells
+from backend.src.events.models import Event
 
 async def init_db(drop_first: bool = True):
     async with engine.begin() as conn:

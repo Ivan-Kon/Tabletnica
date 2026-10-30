@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from backend.src.prescriptions.crud import get_prescriptions, add_prescription, get_prescription, change_status_prescription, delete_prescription
 from backend.src.prescriptions.schemas import PrescriptionOutSchema, PrescriptionSchema, PrescriptionStatusSchema
 
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 router = APIRouter(
     prefix="/prescriptions",
