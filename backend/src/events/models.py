@@ -18,5 +18,3 @@ class Event(Base):
     last_seen_at: Mapped[datetime] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime)
     updated_at: Mapped[datetime] = mapped_column(DateTime)
-
-print("Event model loaded, table:", Event.__table__)

@@ -1,4 +1,10 @@
-import { NavLink, Outlet, Link, useLocation } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useEffect } from "react";
 import {
   LayoutDashboard,
@@ -43,6 +49,7 @@ function Navigation({ mobile = false }) {
 }
 export default function MainLayout({ user, onLogout }) {
   const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
@@ -97,6 +104,20 @@ export default function MainLayout({ user, onLogout }) {
           </div>
         </header>
         <main id="main-content">
+          {location.state?.notice && (
+            <div className="notice save-notice" role="status">
+              <span>{location.state.notice}</span>
+              <button
+                className="icon-button"
+                aria-label="Закрыть сообщение"
+                onClick={() =>
+                  navigate(location.pathname, { replace: true, state: null })
+                }
+              >
+                ×
+              </button>
+            </div>
+          )}
           <Outlet context={{ user }} />
         </main>
         <footer className="workspace-footer">

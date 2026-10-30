@@ -1,9 +1,9 @@
 import { store } from "../mocks/store.js";
-import { useMocks, api } from "./api.js";
+import { useMocks } from "./api.js";
 import { futureApi } from "./futureApi.js";
 export const alertsService = {
   async getAlerts() {
-    if (!useMocks) return api("/alerts/get_all");
+    if (!useMocks) return futureApi("/alerts");
     return structuredClone(store.alerts);
   },
   async markReviewed(id) {

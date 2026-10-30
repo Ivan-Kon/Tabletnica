@@ -1,5 +1,6 @@
 import { store, nextId } from "../mocks/store.js";
-import { api, useMocks } from "./api.js";
+import { useMocks } from "./api.js";
+import { futureApi } from "./futureApi.js";
 export function getItems(db = store) {
   return db.prescriptionItems.map((item) => ({
     ...item,
@@ -17,7 +18,15 @@ export function validateItem(item) {
     !Number.isFinite(Number(item.quantity))
   )
     throw new Error("Укажите препарат, дозировку и положительное количество.");
-  if (!item.start_date || (item.end_date && item.end_date < item.start_date))
+  const validDate = (value) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(value || "") &&
+    Number.isFinite(new Date(`${value}T00:00:00Z`).getTime()) &&
+    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+  if (
+    !validDate(item.start_date) ||
+    (item.end_date &&
+      (!validDate(item.end_date) || item.end_date < item.start_date))
+  )
     throw new Error("Дата окончания должна быть не раньше даты начала.");
   if (
     !item.schedule ||
@@ -42,7 +51,7 @@ export function validateItem(item) {
 }
 export const prescriptionsService = {
   async getAll() {
-    if (!useMocks) return api("/prescriptions/get_all");
+    if (!useMocks) return futureApi("/prescription-items");
     return structuredClone(getItems());
   },
   async getPatientPrescriptions(id) {
@@ -55,7 +64,7 @@ export const prescriptionsService = {
     if (!items.length) throw new Error("Добавьте хотя бы один препарат.");
     items.forEach(validateItem);
     if (!useMocks)
-      return api("/prescriptions/add", {
+      return futureApi("/prescriptions", {
         method: "POST",
         body: JSON.stringify({
           patient_id: Number(patientId),
@@ -63,6 +72,11 @@ export const prescriptionsService = {
           items,
         }),
       });
+    if (
+      store.patients.find((p) => p.id === Number(patientId))?.status !==
+      "active"
+    )
+      throw new Error("Назначение доступно только активному пациенту.");
     const prescription = {
       id: nextId(store.prescriptions),
       patient_id: Number(patientId),

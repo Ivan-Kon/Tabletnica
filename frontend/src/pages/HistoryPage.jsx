@@ -8,6 +8,8 @@ import {
   PatientSummary,
   useLoad,
   LoadState,
+  ErrorMessage,
+  Button,
 } from "../components/common/UI.jsx";
 import { patientsService } from "../services/patientsService.js";
 import { prescriptionsService } from "../services/prescriptionsService.js";
@@ -53,7 +55,7 @@ export default function HistoryPage() {
             <input
               type="date"
               value={from}
-              onChange={(e) => setFrom(e.target.value)}
+              onInput={(e) => setFrom(e.target.value)}
             />
           </label>
           <label>
@@ -62,7 +64,7 @@ export default function HistoryPage() {
               type="date"
               min={from}
               value={to}
-              onChange={(e) => setTo(e.target.value)}
+              onInput={(e) => setTo(e.target.value)}
             />
           </label>
           <label>
@@ -86,6 +88,22 @@ export default function HistoryPage() {
             </select>
           </label>
         </div>
+        {from && to && from > to && (
+          <ErrorMessage error="Дата начала периода не может быть позже даты окончания." />
+        )}
+        {(from || to || cell !== "all" || type !== "all") && (
+          <Button
+            className="secondary"
+            onClick={() => {
+              setFrom("");
+              setTo("");
+              setCell("all");
+              setType("all");
+            }}
+          >
+            Сбросить фильтры
+          </Button>
+        )}
         <div className="history-table">
           <div className="history-head">
             <span>Дата · время, МСК</span>

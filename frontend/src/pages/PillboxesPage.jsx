@@ -20,6 +20,11 @@ export default function PillboxesPage() {
     <>
       <PageTitle
         title="Таблетницы"
+        action={
+          <Link className="button" to="/pillboxes/new">
+            Добавить таблетницу
+          </Link>
+        }
         description="Устройства отделения и их состояние."
       />
       <div className="toolbar">

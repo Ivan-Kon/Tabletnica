@@ -94,9 +94,13 @@ export default function AlertsPage() {
                     Пациент не назначен · Палата и койка —
                   </p>
                 )}
-                <Link className="text-link" to={`/pillboxes/${b.id}`}>
-                  {b.device_id} →
-                </Link>
+                {b ? (
+                  <Link className="text-link" to={`/pillboxes/${b.id}`}>
+                    {b.device_id} →
+                  </Link>
+                ) : (
+                  <p className="muted">Устройство недоступно</p>
+                )}
                 <div className="alert-actions">
                   <Badge status={a.status}>
                     {a.status === "new" ? "Требует внимания" : "Просмотрено"}

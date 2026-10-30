@@ -40,7 +40,12 @@ export default function PillboxSelectionPage() {
     setError(null);
     try {
       await pillboxesService.assignPillbox(selected, id, user.id);
-      navigate(`/pillboxes/${selected}`);
+      navigate(`/pillboxes/${selected}`, {
+        state: {
+          notice:
+            "Таблетница передана пациенту. Настройте ячейки по назначениям.",
+        },
+      });
     } catch (e) {
       setError(e);
     } finally {
@@ -48,6 +53,13 @@ export default function PillboxSelectionPage() {
     }
   }
   if (!data) return <LoadState data={data} error={loadError} />;
+  if (data.patient.status !== "active")
+    return (
+      <>
+        <PageTitle title="Передача недоступна" back={`/patients/${id}`} />
+        <ErrorMessage error="Передать таблетницу можно только активному пациенту." />
+      </>
+    );
   return (
     <>
       <PageTitle
@@ -77,7 +89,7 @@ export default function PillboxSelectionPage() {
             {data.boxes.map((box) => (
               <button
                 aria-pressed={selected === box.id}
-                disabled={busy}
+                disabled={busy || !box.online}
                 key={box.id}
                 className={`device-option ${selected === box.id ? "selected" : ""}`}
                 onClick={() => setSelected(box.id)}

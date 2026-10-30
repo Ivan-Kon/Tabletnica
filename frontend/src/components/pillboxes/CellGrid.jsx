@@ -39,6 +39,7 @@ export default function CellGrid({ box, readOnly = false }) {
               </span>
             )}
             <Badge status={cell.status} />
+            {cell.pending_change && <small>Ожидает подтверждения</small>}
           </>
         );
         return readOnly || !box.assignment ? (

@@ -20,6 +20,7 @@ import CellConfigurationPage from "../pages/CellConfigurationPage.jsx";
 import FillingConfirmationPage from "../pages/FillingConfirmationPage.jsx";
 import HistoryPage from "../pages/HistoryPage.jsx";
 import AlertsPage from "../pages/AlertsPage.jsx";
+import RegistrationPage from "../pages/RegistrationPage.jsx";
 import { authService } from "../services/authService.js";
 import { PageTitle, Card, Button } from "../components/common/UI.jsx";
 function Profile({ onLogout }) {
@@ -80,6 +81,10 @@ export default function App() {
         >
           <Route index element={<DashboardPage />} />
           <Route path="patients" element={<PatientsPage />} />
+          <Route
+            path="patients/new"
+            element={<RegistrationPage key="patient" kind="patient" />}
+          />
           <Route path="patients/:id" element={<PatientPage />} />
           <Route
             path="patients/:id/prescriptions/new"
@@ -92,6 +97,10 @@ export default function App() {
           <Route path="patients/:id/history" element={<HistoryPage />} />
           <Route path="prescriptions" element={<PrescriptionsPage />} />
           <Route path="pillboxes" element={<PillboxesPage />} />
+          <Route
+            path="pillboxes/new"
+            element={<RegistrationPage key="pillbox" kind="pillbox" />}
+          />
           <Route path="pillboxes/:id" element={<PillboxPage />} />
           <Route
             path="pillboxes/:id/cells/:cell"
