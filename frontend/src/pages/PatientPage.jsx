@@ -9,6 +9,7 @@ import {
   MoreLink,
   useLoad,
   LoadState,
+  ErrorMessage,
 } from "../components/common/UI.jsx";
 import PrescriptionList from "../components/prescriptions/PrescriptionList.jsx";
 import { patientsService } from "../services/patientsService.js";
@@ -21,11 +22,11 @@ export default function PatientPage() {
   const { data, error } = useLoad(async () => {
     const [patient, items, box, events] = await Promise.all([
       patientsService.getPatient(id),
-      prescriptionsService.getPatientPrescriptions(id),
-      pillboxesService.getPatientPillbox(id),
-      eventsService.getEvents(id),
+      prescriptionsService.getPatientPrescriptions(id).then((value) => ({ value })).catch((error) => ({ error })),
+      pillboxesService.getPatientPillbox(id).then((value) => ({ value })).catch((error) => ({ error })),
+      eventsService.getEvents(id).then((value) => ({ value })).catch((error) => ({ error })),
     ]);
-    return { patient, items, box, events };
+    return { patient, items: items.value || [], box: box.value, events: events.value || [], itemsError: items.error, boxError: box.error, eventsError: events.error };
   }, [id]);
   if (!data) return <LoadState data={data} error={error} />;
   return (
@@ -61,14 +62,14 @@ export default function PatientPage() {
             )}
           </div>
           <p className="muted">Данные из бумажного листа назначений врача</p>
-          <PrescriptionList items={data.items} />
+          {data.itemsError ? <ErrorMessage error={data.itemsError} /> : <PrescriptionList items={data.items} />}
         </Card>
         <Card>
           <div className="section-heading">
             <h2>Текущая таблетница</h2>
             <Pill size={21} />
           </div>
-          {data.box ? (
+          {data.boxError ? <ErrorMessage error={data.boxError} /> : data.box ? (
             <>
               <div className="device-emblem">
                 <Pill size={35} />
@@ -105,7 +106,7 @@ export default function PatientPage() {
           <h2>Последние события</h2>
           <MoreLink to={`/patients/${id}/history`} />
         </div>
-        {data.events.length ? (
+        {data.eventsError ? <ErrorMessage error={data.eventsError} /> : data.events.length ? (
           data.events.slice(0, 3).map((e) => (
             <div className="event-preview" key={e.id}>
               <span>{formatDate(e.occurred_at)}</span>

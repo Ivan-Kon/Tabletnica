@@ -1,5 +1,5 @@
 export const useMocks = import.meta.env?.VITE_USE_MOCKS !== "false";
-const baseUrl = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000";
+const baseUrl = import.meta.env?.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 export async function api(path, options = {}) {
   let response;
   try {
@@ -17,6 +17,10 @@ export async function api(path, options = {}) {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     const fields = {
+      full_name: "ФИО пациента",
+      room_number: "Номер палаты",
+      bed_number: "Номер койки",
+      status: "Статус",
       doctor_name: "ФИО врача",
       prescribed_by: "ФИО врача",
       patient_id: "Пациент",

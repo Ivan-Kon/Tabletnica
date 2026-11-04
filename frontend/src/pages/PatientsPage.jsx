@@ -9,6 +9,7 @@ import {
   PatientSummary,
   useLoad,
   LoadState,
+  ErrorMessage,
 } from "../components/common/UI.jsx";
 import { patientsService } from "../services/patientsService.js";
 import { pillboxesService } from "../services/pillboxesService.js";
@@ -17,7 +18,7 @@ export default function PatientsPage() {
   const [status, setStatus] = useState("active");
   const { data, error } = useLoad(async () => ({
     patients: await patientsService.getPatients(),
-    boxes: await pillboxesService.getAll(),
+    boxes: await pillboxesService.getAll().then((value) => ({ value })).catch((error) => ({ error })),
   }));
   if (!data) return <LoadState data={data} error={error} />;
   const patients = data.patients.filter(
@@ -39,6 +40,7 @@ export default function PatientsPage() {
         }
         description="Назначения, таблетницы и события каждого пациента."
       />
+      <ErrorMessage error={data.boxes.error} />
       <Card>
         <div className="toolbar">
           <label className="search">
@@ -69,7 +71,7 @@ export default function PatientsPage() {
             <span />
           </div>
           {patients.map((p) => {
-            const box = data.boxes?.find(
+            const box = data.boxes.value?.find(
               (b) => b.assignment?.patient_id === p.id,
             );
             return (
@@ -80,7 +82,7 @@ export default function PatientsPage() {
               >
                 <PatientSummary patient={p} />
                 <Badge status={p.status} />
-                <span>{box?.device_id || "Не передана"}</span>
+                <span>{data.boxes.error ? "Данные недоступны" : box?.device_id || "Не передана"}</span>
                 <ArrowUpRight size={19} />
               </Link>
             );

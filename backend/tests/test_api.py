@@ -52,6 +52,21 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("session_id", User.__table__.columns)
         self.assertNotIn("sessions_id", User.__table__.columns)
 
+    async def test_patient_registration_persists_exact_fields(self):
+        await self.login()
+        fields = {"full_name": " Test Patient ", "room_number": " 204А ", "bed_number": "01", "status": "active"}
+        response = await self.client.post("/patients/add", json=fields)
+        self.assertEqual(response.status_code, 201, response.text)
+        record = response.json()
+        async with async_session() as session:
+            persisted = await session.get(Patient, record["id"])
+            self.assertEqual(persisted.full_name, "Test Patient")
+            self.assertEqual(persisted.room_number, "204А")
+            self.assertEqual(persisted.bed_number, "01")
+            self.assertEqual(persisted.status, "active")
+        self.assertEqual((await self.client.get(f"/patients/get/{record['id']}")).json(), record)
+        self.assertIn(record, (await self.client.get("/patients/get_all")).json())
+
     async def test_login_me_logout_and_secrets(self):
         self.assertEqual((await self.client.get("/patients/get_all")).status_code, 401)
         bad = await self.client.post("/users/login", json={"username":"admin", "password":"wrong"})

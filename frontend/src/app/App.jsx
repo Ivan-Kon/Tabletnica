@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   Navigate,
@@ -22,7 +22,7 @@ import HistoryPage from "../pages/HistoryPage.jsx";
 import AlertsPage from "../pages/AlertsPage.jsx";
 import RegistrationPage from "../pages/RegistrationPage.jsx";
 import { authService } from "../services/authService.js";
-import { PageTitle, Card, Button } from "../components/common/UI.jsx";
+import { PageTitle, Card, Button, ErrorMessage } from "../components/common/UI.jsx";
 function Profile({ onLogout }) {
   const { user } = useOutletContext();
   return (
@@ -54,12 +54,23 @@ function More({ onLogout }) {
 }
 export default function App() {
   const [user, setUser] = useState(authService.current());
+  const [restoring, setRestoring] = useState(true);
+  const [sessionError, setSessionError] = useState(null);
+  useEffect(() => {
+    let active = true;
+    authService.restore().then((value) => { if (active) setUser(value); })
+      .catch((error) => { if (active) setSessionError(error); })
+      .finally(() => { if (active) setRestoring(false); });
+    return () => { active = false; };
+  }, []);
   async function logout() {
-    await authService.logout();
-    setUser(null);
+    try { await authService.logout(); setUser(null); setSessionError(null); }
+    catch (error) { setSessionError(error); }
   }
+  if (restoring) return <p role="status">Проверка входа…</p>;
   return (
     <>
+      <ErrorMessage error={sessionError} />
       <a className="skip-link" href="#main-content">
         К основному содержимому
       </a>
