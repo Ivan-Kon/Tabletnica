@@ -1,8 +1,6 @@
 from datetime import datetime
 from enum import Enum
-
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 class AlertType(str, Enum):
     content_not_removed = "content_not_removed"
@@ -10,42 +8,27 @@ class AlertType(str, Enum):
     device_error = "device_error"
     course_completed = "course_completed"
 
-
 class AlertPriority(str, Enum):
     low = "low"
     medium = "medium"
     high = "high"
     critical = "critical"
 
-
 class AlertStatus(str, Enum):
     new = "new"
     viewed = "viewed"
-    solved = "solved"
+    resolved = "resolved"
 
-
-class AlertTypeSchema(BaseModel):
-    status: AlertStatus
-
-
-class AlertPrioritySchema(BaseModel):
-    priority: AlertPriority
-
-
-class AlertStatusSchema(BaseModel):
-    status: AlertStatus
-
-
-class AlertSchema(AlertStatusSchema,AlertPrioritySchema,AlertTypeSchema):
-    patient_id: int
-    pillbox_id: int
-    event_id: int
-    config_version: int
-    acknowledged_by: int
-
-
-class AlertOutSchema(AlertSchema):
+class AlertOutSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
+    patient_id: int | None
+    pillbox_id: int | None
+    event_id: int | None
+    alert_type: AlertType
+    priority: AlertPriority
+    status: AlertStatus
+    config_version: int
+    acknowledged_by: int | None
     created_at: datetime
-    acknowledged_at: datetime
-
+    acknowledged_at: datetime | None

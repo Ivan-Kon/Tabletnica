@@ -1,12 +1,10 @@
-from datetime import datetime
-
-from backend.src.schemas import BaseModel
-
+from datetime import time
+from pydantic import BaseModel, ConfigDict
 
 class ScheduleTimeSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     schedule_id: int
-    time_of_day: datetime
-
+    time_of_day: time
 
 class ScheduleTimeOutSchema(ScheduleTimeSchema):
-    schedule_time_id: int
+    id: int

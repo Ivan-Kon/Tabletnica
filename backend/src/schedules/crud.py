@@ -17,10 +17,11 @@ async def get_schedule(session: AsyncSession, schedule_id: int) -> Schedule:
     return schedule
 
 
-async def add_schedule(session: AsyncSession, schedule_type: str, interval_minutes: int, anchor_at: datetime, start_date: date, end_date: date,status: str) -> Schedule:
+async def add_schedule(session: AsyncSession, schedule_type: str, interval_minutes: int, anchor_at: datetime, start_date: date, end_date: date,status: str, cell_config_id: int) -> Schedule:
     """Добавление нового рецепта"""
     new_schedule = Schedule(
         schedule_type=schedule_type,
+        cell_config_id=cell_config_id,
         interval_minutes=interval_minutes,
         anchor_at=anchor_at,
         start_date=start_date,
@@ -36,7 +37,7 @@ async def add_schedule(session: AsyncSession, schedule_type: str, interval_minut
 async def update_schedule(session: AsyncSession, schedule_id: int,schedule_status:str) -> Schedule:
     schedule = await session.get(Schedule, schedule_id)
     if schedule:
-        schedule.schedule_status = schedule_status
+        schedule.status = schedule_status
         await session.commit()
         await session.refresh(schedule)
         return schedule

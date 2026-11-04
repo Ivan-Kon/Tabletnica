@@ -14,6 +14,7 @@ class PrescriptionStatus(str, Enum):
 
 
 class PrescriptionSourceType(str, Enum):
+    paper = 'paper'
     papper = 'papper'
     imported = 'import'
     manual = 'manual'
@@ -28,8 +29,8 @@ class PrescriptionSchema(PrescriptionStatusSchema):
     patient_id: int
     entered_by: int
     source_type: PrescriptionSourceType
-    source_document_number: int
-    prescribed_by: int
+    source_document_number: int | None = None
+    prescribed_by: str
 
 
 class PrescriptionOutSchema(PrescriptionSchema):

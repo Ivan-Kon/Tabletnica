@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.src.hash import hash_password, verify_password, pwd_context
+from backend.src.hash import hash_password, verify_password
 from backend.src.users.models import User
 
 
@@ -18,7 +18,7 @@ async def login_user(session: AsyncSession, username, password) -> User | None:
     if user is None:
         # опционально: "fake verify" против timing-атак,
         # чтобы время ответа не отличалось
-        await verify_password(password, pwd_context.hash("dummy"))
+        await verify_password(password, await hash_password("dummy"))
         return None
 
     # 3. Сверяем пароль через verify (constant-time, соль достаётся из хеша)

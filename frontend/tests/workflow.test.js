@@ -1,4 +1,4 @@
-import test from "node:test";
+import test, { beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { createStore } from "../src/mocks/store.js";
 import {
@@ -8,6 +8,13 @@ import {
 } from "../src/services/pillboxesService.js";
 import { nextOccurrence } from "../src/services/schedule.js";
 import { validateItem } from "../src/services/prescriptionsService.js";
+// Keep workflow fixtures valid independently of the day the suite is executed.
+beforeEach((t) => {
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-10-16T09:00:00+03:00"),
+  });
+});
 test("assignment → configuration → filling retains audit and creates prepared config", () => {
   const db = createStore();
   const assignment = assignPillbox(db, 1, 1, 1);

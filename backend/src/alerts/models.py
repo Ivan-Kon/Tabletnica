@@ -18,5 +18,5 @@ class Alert(Base):
     status: Mapped[str] = mapped_column(Enum('new', 'viewed', 'resolved'))
     config_version: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime)
-    acknowledged_at: Mapped[datetime] = mapped_column(DateTime)
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     acknowledged_by: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=True)

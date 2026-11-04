@@ -1,24 +1,17 @@
-from typing import List
-from fastapi import APIRouter
-
+from fastapi import APIRouter, HTTPException
 from backend.src.schedules_times.crud import get_schedule_time, get_schedules_times
-from backend.src.schedules_times.schemas import ScheduleTimeSchema
+from backend.src.schedules_times.schemas import ScheduleTimeOutSchema
 from backend.src.session import SessionDep
 
-router = APIRouter(
-    prefix="/schedules_times",
-    tags=["schedules_times"],
-)
+router = APIRouter(prefix="/schedules_times", tags=["schedules_times"])
 
-@router.get("/get_schedules_times", summary="Получение всех времен для рецептов",status_code=200,response_model=List[ScheduleTimeSchema])
-async def get_schedules_from_db(session: SessionDep) -> List[ScheduleTimeSchema]:
-    """Получение всех времен для рецептов"""
-    schedules = await get_schedules_times(session)
-    return schedules
+@router.get("/get_schedules_times", response_model=list[ScheduleTimeOutSchema])
+async def get_all(session: SessionDep):
+    return await get_schedules_times(session)
 
-
-@router.get("/get_schedule_time/{schedule_time_id}", summary="Получение всех времен для рецептов",status_code=200,response_model=List[ScheduleTimeSchema])
-async def get_schedules_from_db(session: SessionDep, schedule_time_id: int) -> ScheduleTimeSchema:
-    """Получение времени для рецептов"""
-    schedule = await get_schedule_time(session,schedule_time_id)
-    return schedule
+@router.get("/get_schedule_time/{schedule_time_id}", response_model=ScheduleTimeOutSchema)
+async def get_one(session: SessionDep, schedule_time_id: int):
+    value = await get_schedule_time(session, schedule_time_id)
+    if value is None:
+        raise HTTPException(404, "Schedule time not found")
+    return value

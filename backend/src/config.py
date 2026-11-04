@@ -1,4 +1,9 @@
-DATABASE_URL = "mysql+asyncmy://admin:admin@192.168.0.69:3306/tabletnica"
-JWT_SECRET_KEY = "SECRET_KEY"
-JWT_ACCESS_COOKIE_NAME = "my_access_token"
-COOKIE_SESSION_ID_KEY = "session_id"
+import os
+
+# Importing the app never connects to a remote database by default.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./tabletnica-local.db")
+JWT_ACCESS_COOKIE_NAME = "session_id"
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
+CORS_ORIGINS = [value.strip() for value in os.getenv(
+    "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+).split(",") if value.strip()]

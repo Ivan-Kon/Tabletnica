@@ -62,12 +62,12 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`prescriptions` (
   INDEX `fk_Prescriptions_Users1_idx` (`entered_by` ASC) VISIBLE,
   CONSTRAINT `fk_Prescriptions_Patients`
     FOREIGN KEY (`patient_id`)
-    REFERENCES `tabletnica`.`Patients` (`id`)
+    REFERENCES `tabletnica`.`patients` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Prescriptions_Users1`
     FOREIGN KEY (`entered_by`)
-    REFERENCES `tabletnica`.`Users` (`id`)
+    REFERENCES `tabletnica`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`cells` (
   UNIQUE INDEX `check_unique_cell` (`pillbox_id` ASC, `cell_number` ASC) VISIBLE,
   CONSTRAINT `fk_Cells_Pillboxes1`
     FOREIGN KEY (`pillbox_id`)
-    REFERENCES `tabletnica`.`Pillboxes` (`id`)
+    REFERENCES `tabletnica`.`pillboxes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -127,17 +127,17 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`pillbox_assignments` (
   INDEX `fk_PillboxAssignments_Users1_idx` (`assigned_by` ASC) VISIBLE,
   CONSTRAINT `fk_PillboxAssignments_Patients1`
     FOREIGN KEY (`patient_id`)
-    REFERENCES `tabletnica`.`Patients` (`id`)
+    REFERENCES `tabletnica`.`patients` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PillboxAssignments_Pillboxes1`
     FOREIGN KEY (`pillbox_id`)
-    REFERENCES `tabletnica`.`Pillboxes` (`id`)
+    REFERENCES `tabletnica`.`pillboxes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PillboxAssignments_Users1`
     FOREIGN KEY (`assigned_by`)
-    REFERENCES `tabletnica`.`Users` (`id`)
+    REFERENCES `tabletnica`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`prescriptions_items` (
   INDEX `fk_Prescriptions_items_Prescriptions1_idx` (`prescriptions_id` ASC) VISIBLE,
   CONSTRAINT `fk_Prescriptions_items_Prescriptions1`
     FOREIGN KEY (`prescriptions_id`)
-    REFERENCES `tabletnica`.`Prescriptions` (`id`)
+    REFERENCES `tabletnica`.`prescriptions` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -190,22 +190,22 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`cell_configurations` (
   INDEX `fk_Cell_configurations_Users1_idx` (`configured_by` ASC) VISIBLE,
   CONSTRAINT `fk_Cell_configurations_Cells1`
     FOREIGN KEY (`Cell_id`)
-    REFERENCES `tabletnica`.`Cells` (`id`)
+    REFERENCES `tabletnica`.`cells` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Cell_configurations_PillboxAssignments1`
     FOREIGN KEY (`assignment_id`)
-    REFERENCES `tabletnica`.`Pillbox_assignments` (`id`)
+    REFERENCES `tabletnica`.`pillbox_assignments` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Cell_configurations_Prescriptions_items1`
     FOREIGN KEY (`prescription_item_id`)
-    REFERENCES `tabletnica`.`Prescriptions_items` (`id`)
+    REFERENCES `tabletnica`.`prescriptions_items` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Cell_configurations_Users1`
     FOREIGN KEY (`configured_by`)
-    REFERENCES `tabletnica`.`Users` (`id`)
+    REFERENCES `tabletnica`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`schedules` (
   INDEX `fk_Schedules_Cell_configurations1_idx` (`cell_config_id` ASC) VISIBLE,
   CONSTRAINT `fk_Schedules_Cell_configurations1`
     FOREIGN KEY (`cell_config_id`)
-    REFERENCES `tabletnica`.`Cell_configurations` (`id`)
+    REFERENCES `tabletnica`.`cell_configurations` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -254,22 +254,22 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`events` (
   INDEX `fk_Events_Pillboxes1_idx` (`pillbox_id` ASC) VISIBLE,
   CONSTRAINT `fk_Events_Cell_configurations1`
     FOREIGN KEY (`cell_config_id`)
-    REFERENCES `tabletnica`.`Cell_configurations` (`id`)
+    REFERENCES `tabletnica`.`cell_configurations` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Events_Cells1`
     FOREIGN KEY (`cell_id`)
-    REFERENCES `tabletnica`.`Cells` (`id`)
+    REFERENCES `tabletnica`.`cells` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Events_Users1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `tabletnica`.`Users` (`id`)
+    REFERENCES `tabletnica`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Events_Pillboxes1`
     FOREIGN KEY (`pillbox_id`)
-    REFERENCES `tabletnica`.`Pillboxes` (`id`)
+    REFERENCES `tabletnica`.`pillboxes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`device_configs` (
   INDEX `fk_Device_configs_Pillboxes1_idx` (`pillbox_id` ASC) VISIBLE,
   CONSTRAINT `fk_Device_configs_Pillboxes1`
     FOREIGN KEY (`pillbox_id`)
-    REFERENCES `tabletnica`.`Pillboxes` (`id`)
+    REFERENCES `tabletnica`.`pillboxes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -314,12 +314,12 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`weight_measurements` (
   UNIQUE INDEX `check_event` (`event_id` ASC) VISIBLE,
   CONSTRAINT `fk_Weight_measurements_Cell_configurations1`
     FOREIGN KEY (`cell_config_id`)
-    REFERENCES `tabletnica`.`Cell_configurations` (`id`)
+    REFERENCES `tabletnica`.`cell_configurations` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Weight_measurements_Events1`
     FOREIGN KEY (`event_id`)
-    REFERENCES `tabletnica`.`Events` (`id`)
+    REFERENCES `tabletnica`.`events` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -336,7 +336,7 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`schedule_times` (
   INDEX `fk_Schedule_times_Schedules1_idx` (`schedules_id` ASC) VISIBLE,
   CONSTRAINT `fk_Schedule_times_Schedules1`
     FOREIGN KEY (`schedules_id`)
-    REFERENCES `tabletnica`.`Schedules` (`id`)
+    REFERENCES `tabletnica`.`schedules` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -363,22 +363,22 @@ CREATE TABLE IF NOT EXISTS `tabletnica`.`alerts` (
   INDEX `fk_Alerts_Users1_idx` (`acknowledged_by` ASC) VISIBLE,
   CONSTRAINT `fk_Alerts_Patients1`
     FOREIGN KEY (`patient_id`)
-    REFERENCES `tabletnica`.`Patients` (`id`)
+    REFERENCES `tabletnica`.`patients` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Alerts_Pillboxes1`
     FOREIGN KEY (`pillbox_id`)
-    REFERENCES `tabletnica`.`Pillboxes` (`id`)
+    REFERENCES `tabletnica`.`pillboxes` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Alerts_Events1`
     FOREIGN KEY (`event_id`)
-    REFERENCES `tabletnica`.`Events` (`id`)
+    REFERENCES `tabletnica`.`events` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Alerts_Users1`
     FOREIGN KEY (`acknowledged_by`)
-    REFERENCES `tabletnica`.`Users` (`id`)
+    REFERENCES `tabletnica`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

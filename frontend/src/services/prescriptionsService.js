@@ -1,6 +1,5 @@
 import { store, nextId } from "../mocks/store.js";
-import { useMocks } from "./api.js";
-import { futureApi } from "./futureApi.js";
+import { api, useMocks } from "./api.js";
 export function getItems(db = store) {
   return db.prescriptionItems.map((item) => ({
     ...item,
@@ -51,7 +50,7 @@ export function validateItem(item) {
 }
 export const prescriptionsService = {
   async getAll() {
-    if (!useMocks) return futureApi("/prescription-items");
+    if (!useMocks) return api("/frontend/v1/prescription-items");
     return structuredClone(getItems());
   },
   async getPatientPrescriptions(id) {
@@ -64,11 +63,11 @@ export const prescriptionsService = {
     if (!items.length) throw new Error("Добавьте хотя бы один препарат.");
     items.forEach(validateItem);
     if (!useMocks)
-      return futureApi("/prescriptions", {
+      return api("/frontend/v1/prescriptions", {
         method: "POST",
         body: JSON.stringify({
           patient_id: Number(patientId),
-          doctor_name: doctorName,
+          prescribed_by: doctorName.trim(),
           items,
         }),
       });

@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from backend.src.prescriptions.crud import get_prescriptions, add_prescription, get_prescription, change_status_prescription, delete_prescription
 from backend.src.prescriptions.schemas import PrescriptionOutSchema, PrescriptionSchema, PrescriptionStatusSchema
 
 from backend.src.session import SessionDep
+from backend.src.auth import current_user
+from backend.src.prescriptions.document import DocumentInput, DocumentOut, create_document
 
 router = APIRouter(
     prefix="/prescriptions",
@@ -25,8 +27,11 @@ async def get_by_id(session: SessionDep, prescription_id: int):
     return prescription
 
 
-@router.post("/add",response_model=PrescriptionOutSchema, status_code=201)
-async def add(session: SessionDep,prescription: PrescriptionSchema):
+@router.post("/add",response_model=DocumentOut | PrescriptionOutSchema, status_code=201)
+async def add(session: SessionDep,prescription: DocumentInput | PrescriptionSchema, user=Depends(current_user)):
+    if isinstance(prescription, DocumentInput):
+        return await create_document(session, prescription, user)
+    prescription = prescription.model_copy(update={"entered_by": user.id})
     prescription = await add_prescription(session, prescription)
     return prescription
 

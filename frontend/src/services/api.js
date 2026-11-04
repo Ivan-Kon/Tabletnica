@@ -16,11 +16,44 @@ export async function api(path, options = {}) {
   }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(
+    const fields = {
+      doctor_name: "ФИО врача",
+      prescribed_by: "ФИО врача",
+      patient_id: "Пациент",
+      items: "Препараты",
+      drug_name: "Название препарата",
+      dosage: "Дозировка",
+      quantity: "Количество",
+      start_date: "Дата начала",
+      end_date: "Дата окончания",
+      schedule: "Расписание",
+      specific_times: "Время выдачи",
+      interval_minutes: "Интервал",
+      anchor_at: "Начало отсчёта",
+    };
+    const validation = Array.isArray(body.detail)
+      ? body.detail
+          .map((issue) => {
+            const path = (issue.loc || [])
+              .filter((part) => part !== "body")
+              .map((part) =>
+                typeof part === "number"
+                  ? `№${part + 1}`
+                  : fields[part] || part,
+              )
+              .join(" → ");
+            return `${path ? `${path}: ` : ""}${issue.msg || "Проверьте значение"}`;
+          })
+          .join("; ")
+      : null;
+    const error = new Error(
       typeof body.detail === "string"
         ? body.detail
-        : `Ошибка сервера (${response.status}). Повторите попытку.`,
+        : validation ||
+            `Ошибка сервера (${response.status}). Повторите попытку.`,
     );
+    error.status = response.status;
+    throw error;
   }
   return response.status === 204 ? null : response.json();
 }

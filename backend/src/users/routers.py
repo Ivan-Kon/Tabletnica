@@ -1,50 +1,49 @@
-from fastapi import APIRouter, HTTPException, Response
-from starlette import status
-
-from backend.src.users.schemas import LoginUserSchema, UserSchema
+from datetime import UTC, datetime, timedelta
+import secrets
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from sqlalchemy import delete
+from backend.src.auth import UserSession, token_hash, current_user, admin_user, verify_origin
+from backend.src.config import JWT_ACCESS_COOKIE_NAME, COOKIE_SECURE
+from backend.src.users.schemas import LoginUserSchema, UserSchema, UserOutSchema
 from backend.src.users.crud import login_user, register_user
 from backend.src.session import SessionDep
-import secrets
 
+router = APIRouter(prefix="/users", tags=["users"])
 
-router = APIRouter(
-    prefix="/users",
-    tags=["users"],
-)
-
-@router.post("/check_user")
-async def checks_user(user: LoginUserSchema):
-    return user
-
-
-@router.post("/login")
-async def login(data: LoginUserSchema, session: SessionDep, response: Response):
-    """Вход пользователя"""
+@router.post("/login", response_model=UserOutSchema)
+async def login(data: LoginUserSchema, session: SessionDep, response: Response, request: Request):
+    verify_origin(request)
     user = await login_user(session, data.username, data.password)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect username or password")
-    session_token = secrets.token_urlsafe(32)  # Генерируем токен сессии
-
-    # 2. Устанавливаем куку на объекте response
-    response.set_cookie(
-        key="session_id",  # Имя куки
-        value=session_token,  # Значение (токен)
-        max_age=86400,  # Время жизни в секундах (24 часа)
-        httponly=True,  # 🔒 Запрещает доступ из JavaScript (защита от XSS)
-        secure=True,  # 🔒 Только по HTTPS (в продакшене)
-        samesite="lax",  # 🔒 Защита от CSRF
-        path="/",
-    )
+    if user is None or not user.active:
+        raise HTTPException(401, "Incorrect username or password")
+    old = request.cookies.get(JWT_ACCESS_COOKIE_NAME)
+    if old:
+        await session.execute(delete(UserSession).where(UserSession.token_hash == token_hash(old)))
+    await session.execute(delete(UserSession).where(UserSession.expires_at <= datetime.now(UTC).replace(tzinfo=None)))
+    token = secrets.token_urlsafe(32)
+    session.add(UserSession(token_hash=token_hash(token), user_id=user.id,
+                           expires_at=datetime.now(UTC).replace(tzinfo=None) + timedelta(days=1)))
+    await session.commit()
+    response.set_cookie(JWT_ACCESS_COOKIE_NAME, token, max_age=86400,
+                        httponly=True, secure=COOKIE_SECURE, samesite="lax", path="/")
     return user
 
+@router.get("/me", response_model=UserOutSchema)
+async def me(user=Depends(current_user)):
+    return user
 
-@router.post("/register")
-async def login(user: UserSchema, session: SessionDep):
-    """Регистрация пользователя"""
-    user = await register_user(session, user)
-    if user:
-        return user
-    raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Username or password already exists")
+@router.post("/logout", status_code=204)
+async def logout(request: Request, response: Response, session: SessionDep):
+    verify_origin(request)
+    token = request.cookies.get(JWT_ACCESS_COOKIE_NAME)
+    if token:
+        await session.execute(delete(UserSession).where(UserSession.token_hash == token_hash(token)))
+        await session.commit()
+    response.delete_cookie(JWT_ACCESS_COOKIE_NAME, path="/", secure=COOKIE_SECURE, httponly=True, samesite="lax")
 
-
-
+@router.post("/register", response_model=UserOutSchema, status_code=201)
+async def register(data: UserSchema, session: SessionDep, _admin=Depends(admin_user)):
+    user = await register_user(session, data)
+    if not user:
+        raise HTTPException(409, "Username already exists")
+    return user

@@ -698,7 +698,7 @@ fieldset {
   border-radius: 12px;
   padding: 19px;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   column-gap: 13px;
   align-items: center;
 }
@@ -754,7 +754,7 @@ fieldset {
 .patient-table-row,
 .table-head {
   display: grid;
-  grid-template-columns: 2fr 0.7fr 0.9fr 20px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 0.7fr) minmax(0, 0.9fr) 20px;
   gap: 18px;
   align-items: center;
   padding: 20px 6px;
@@ -778,7 +778,26 @@ fieldset {
   min-width: 0;
 }
 .patient-summary strong {
+  display: block;
+  overflow-wrap: anywhere;
   font-size: 14px;
+}
+.patient-summary > div:not(.avatar) {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.patient-table-row > span,
+.patient-preview strong,
+.patient-preview p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.patient-banner > .patient-summary {
+  flex: 1;
+}
+.patient-banner > .badge {
+  flex-shrink: 0;
 }
 .patient-summary p {
   font-size: 12px;
