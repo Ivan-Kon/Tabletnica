@@ -12,7 +12,7 @@ from sqlalchemy import ForeignKey, JSON, Text, select
 from sqlalchemy.orm import Mapped, mapped_column
 from backend.src.auth import current_user
 from backend.src.database import Base
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 from backend.src.patients.models import Patient
 from backend.src.prescriptions.models import Prescription
 from backend.src.prescriptions_items.models import PrescriptionItem

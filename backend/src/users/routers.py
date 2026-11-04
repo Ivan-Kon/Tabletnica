@@ -6,7 +6,7 @@ from backend.src.auth import UserSession, token_hash, current_user, admin_user, 
 from backend.src.config import JWT_ACCESS_COOKIE_NAME, COOKIE_SECURE
 from backend.src.users.schemas import LoginUserSchema, UserSchema, UserOutSchema
 from backend.src.users.crud import login_user, register_user
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 router = APIRouter(prefix="/users", tags=["users"])
 

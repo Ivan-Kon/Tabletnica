@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from backend.src.alerts.crud import get_alerts
 from backend.src.alerts.schemas import AlertOutSchema
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 router = APIRouter(
     prefix="/alerts",

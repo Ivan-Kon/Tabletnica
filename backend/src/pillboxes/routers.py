@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 from backend.src.pillboxes.crud import get_pillboxes, get_pillbox
 from backend.src.pillboxes.schemas import PillboxesOutSchema
 

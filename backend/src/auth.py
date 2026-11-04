@@ -5,7 +5,7 @@ from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 from backend.src.config import JWT_ACCESS_COOKIE_NAME, CORS_ORIGINS
 from backend.src.database import Base
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 from backend.src.users.models import User
 
 class UserSession(Base):

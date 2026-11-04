@@ -1,11 +1,11 @@
 # TABLETNICA: данные и контракт клиента с сервером
 
-Дата исследования: 26 октября 2026. Это карта существующей системы и требований к интеграции, а не заявление о готовности всех API.
+Дата исследования: 26 октября 2026; сверка и объединение кода: 4 ноября 2026. Это карта существующей системы и требований к интеграции, а не заявление о готовности всех API.
 
 ## Источники и границы достоверности
 
 1. Описание 14 таблиц, предоставленное владельцем проекта 26 октября, — согласованная предметная основа, составленная по models.py, кроме корневого src/models.py.
-2. GitHub website-design: d571c07 и 65d1dad от 24 октября; локальный HEAD: a597eb6, поверх него есть незакоммиченные исправления.
+2. Объединены GitHub master 518afe1 и website-design 71003df (одинаковое содержимое) с локальными исправлениями, сохранёнными в 4683e3c. В объединённом коде используются cell_configs, pillbox_assignments и schedule_times; словарь ниже сохраняет исходные названия из описания владельца.
 3. database.sql — отдельная, отличающаяся версия схемы. Его нельзя автоматически применять вместо моделей.
 4. Серверная MySQL не изучена напрямую: попытка чтения information_schema завершилась OperationalError 2013. Ни структуру, ни записи серверной БД не меняли. Типы/ограничения ниже не подтверждают фактический DDL сервера.
 
@@ -27,7 +27,7 @@
 | cells_configs | id int; cell_id FK→cells; assignment_id nullable FK→pillboxes_assignments; prescription_item_id FK→prescriptions_items; baseline_weight DECIMAL; status active/configured/completed; configured_at, loaded_at datetime. Историческая загрузка препарата в физическую ячейку. |
 | schedules | id BigInteger; schedule_type specific_times/interval; interval_minutes Integer; anchor_at DateTime; start_date, end_date Date; status active/paused/completed. В описании cell_config_id закомментирован; в GitHub от 24 октября FK уже восстановлен. |
 | scheduleTimes | id int; schedule_id FK→schedules; time_of_day Time. Несколько строк для нескольких конкретных времён. В GitHub от 24 октября таблица переименована в schedule_times. |
-| events | id int; pillbox_id FK→pillboxes; cell_config_id nullable FK→cells_configs; cell_id FK→cells; user_id FK→users; event_type (см. ниже); last_seen_at, created_at, updated_at datetime. В новых GitHub-моделях дополнительно появился patient_id. |
+| events | id int; pillbox_id FK→pillboxes; cell_config_id nullable FK→cells_configs; cell_id FK→cells; user_id FK→users; event_type (см. ниже); last_seen_at, created_at, updated_at datetime. В итоговой GitHub-модели 71003df отдельного patient_id нет; историю пациента нужно связывать через конфигурацию и назначение таблетницы. |
 | alerts | id int; patient_id nullable FK→patients; pillbox_id nullable FK→pillboxes; event_id nullable FK→events; alert_type content_not_removed/device_offline/device_error/course_completed; priority low/medium/high/critical; status new/viewed/resolved; config_version Integer; created_at, acknowledged_at datetime; acknowledged_by nullable FK→users. |
 | devices_configs | id int; pillbox_id FK→pillboxes; config_version Integer; payload JSON; status created/sent/acknowledged/error; sent_at, acknowledged_at datetime. Отправленная версия должна оставаться неизменной для сверки ACK. |
 | weight_measurements | id int; event_id FK→events; cell_config_id FK→cells_configs; weight_before, weight_after, weight_delta DECIMAL; content_removed bool; measured_at datetime. Факт удаления содержимого, не доказательство проглатывания препарата. |

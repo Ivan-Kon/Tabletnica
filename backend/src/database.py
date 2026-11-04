@@ -23,7 +23,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 def load_models():
     for name in ("users", "patients", "prescriptions", "prescriptions_items", "pillboxes",
-                 "pillboxes_assignments", "cells", "cells_configs", "schedules",
+                 "pillbox_assignments", "cells", "cell_configs", "schedules",
                  "schedules_times", "events", "alerts", "devices_configs", "weight_measurements"):
         import_module(f"backend.src.{name}.models")
     import_module("backend.src.auth")

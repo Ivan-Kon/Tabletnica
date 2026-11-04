@@ -19,7 +19,7 @@ from backend.src.patients.models import Patient
 from backend.src.cells.models import Cells
 from backend.src.prescriptions.models import Prescription
 from backend.src.prescriptions_items.models import PrescriptionItem
-from backend.src.cells_configs.models import CellConfig
+from backend.src.cell_configs.models import CellConfig
 from backend.src.schedules_times.models import ScheduleTime
 from backend.src.alerts.models import Alert
 
@@ -41,6 +41,16 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         response = await self.client.post("/users/login", json={"username":"admin", "password":"test-password"})
         self.assertEqual(response.status_code, 200, response.text)
         return response
+
+    async def test_merged_schema_names_and_foreign_key_types(self):
+        self.assertTrue({"cell_configs", "pillbox_assignments", "schedule_times"}.issubset(Base.metadata.tables))
+        self.assertTrue({"cells_configs", "pillboxes_assignments", "scheduleTimes"}.isdisjoint(Base.metadata.tables))
+        for table in Base.metadata.tables.values():
+            for fk in table.foreign_keys:
+                self.assertEqual(fk.parent.type.compile(dialect=mysql.dialect()),
+                                 fk.column.type.compile(dialect=mysql.dialect()), str(fk))
+        self.assertNotIn("session_id", User.__table__.columns)
+        self.assertNotIn("sessions_id", User.__table__.columns)
 
     async def test_login_me_logout_and_secrets(self):
         self.assertEqual((await self.client.get("/patients/get_all")).status_code, 401)

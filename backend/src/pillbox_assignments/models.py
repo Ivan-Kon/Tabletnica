@@ -7,7 +7,7 @@ from backend.src.database import Base
 
 
 class PillboxAssignment(Base):
-    __tablename__ = 'pillboxes_assignments'
+    __tablename__ = 'pillbox_assignments'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pillbox_id: Mapped[int] = mapped_column(ForeignKey('pillboxes.id'))

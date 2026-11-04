@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from backend.src.schedules_times.crud import get_schedule_time, get_schedules_times
 from backend.src.schedules_times.schemas import ScheduleTimeOutSchema
-from backend.src.session import SessionDep
+from backend.src.dependencies import SessionDep
 
 router = APIRouter(prefix="/schedules_times", tags=["schedules_times"])
 
